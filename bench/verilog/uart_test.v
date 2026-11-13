@@ -80,7 +80,7 @@ module uart_test ();
 
 reg       clkr;
 reg       wb_rst_ir;
-wire  [`UART_ADDR_WIDTH-1:0]  wb_adr_i;
+wire  [2:0]  wb_adr_i;
 wire  [31:0]  wb_dat_i;
 wire  [31:0]  wb_dat_o;
 wire [3:0]    wb_sel_i;
@@ -113,7 +113,7 @@ uart_top  uart_snd(
 
 // All the signals and regs named with a 1 are receiver fifo signals
 
-wire  [`UART_ADDR_WIDTH-1:0]  wb1_adr_i;
+wire  [2:0]  wb1_adr_i;
 wire  [31:0]      wb1_dat_i;
 wire  [31:0]      wb1_dat_o;
 wire [3:0]    wb1_sel_i;
@@ -205,13 +205,13 @@ begin
     
   //write to lcr. set bit 7
   //wb_cyc_ir = 1;
-  wbm.wb_wr1(`UART_REG_LC, 4'b1000, {8'b10011011, 24'b0});
+  wbm.wb_wr1(`UART_REG_LC, 4'b1000, {24'b0, 8'b10011011});
   // set dl to divide by 3
   wbm.wb_wr1(`UART_REG_DL1,4'b0001, 32'd2);
   @(posedge clk);
   @(posedge clk);
   // restore normal registers
-  wbm.wb_wr1(`UART_REG_LC, 4'b1000, {8'b00011011, 24'b0}); //00011011 
+  wbm.wb_wr1(`UART_REG_LC, 4'b1000, {24'b0, 8'b00011011}); //00011011 
 
   fork
   begin
@@ -277,14 +277,14 @@ begin
   #11;
   //write to lcr. set bit 7
   //wb_cyc_ir = 1;
-  wbm1.wb_wr1(`UART_REG_LC, 4'b1000, {8'b10011011, 24'b0});
+  wbm1.wb_wr1(`UART_REG_LC, 4'b1000, {24'b0, 8'b10011011});
   // set dl to divide by 3
   wbm1.wb_wr1(`UART_REG_DL1, 4'b1, 32'd2);
   @(posedge clk);
   @(posedge clk);
   // restore normal registers
-  wbm1.wb_wr1(`UART_REG_LC, 4'b1000, {8'b00011011, 24'b0});
-  wbm1.wb_wr1(`UART_REG_IE, 4'b0010, {16'b0, 8'b00001111, 8'b0});
+  wbm1.wb_wr1(`UART_REG_LC, 4'b1000, {24'b0, 8'b00011011});
+  wbm1.wb_wr1(`UART_REG_IE, 4'b0010, {24'b0, 8'b00001111});
   wait(uart_rcv.regs.receiver.rf_count == 2);
     e = 800;
   while (e > 0)
@@ -325,7 +325,7 @@ $display("DATA BUS IS 8");
 `else
 $display("DATA BUS IS 32");
 `endif
-    $display("%d %d", `UART_ADDR_WIDTH, `UART_DATA_WIDTH);
+    $display("%d %d", 3, 8);
 
   end
 
